@@ -1,0 +1,11 @@
+{
+  "name": "skillora-capture-media",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "capture": "node capture-media.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.47.0"
+  }
+}

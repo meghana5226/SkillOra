@@ -1,0 +1,36 @@
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.swp
+
+# Logs
+*.log
+logs/
+
+# Build artifacts
+target/
+dist/
+build/
+out/
+
+# Node
+node_modules/
+
+# Java
+*.class
+*.jar
+*.war
+hs_err_pid*
+
+# Docker volumes / local data
+pgdata/
