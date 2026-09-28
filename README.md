@@ -15,9 +15,6 @@
 
 </div>
 
-> **Final Year Project**
-> Author: `<Your Name>` · Programme: `<Degree / Course>` · Institution: `<University>` · Supervisor: `<Supervisor Name>` · Year: `<Year>`
-
 ---
 
 ## Table of Contents
