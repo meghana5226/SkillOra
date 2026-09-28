@@ -1,16 +1,66 @@
+<div align="center">
+
 # Skillora
 
-Skillora is a peer-to-peer skill exchange platform. Members list what they can teach and what they want to
-learn, get matched with people whose skills complement theirs, then message, schedule sessions, review each
-other and earn XP.
+**A peer-to-peer skill exchange platform that matches people who can teach each other.**
 
-**Stack:** React + Vite + Tailwind CSS · Java 21 + Spring Boot 3 · Spring Security + JWT · PostgreSQL + Flyway · Docker
+![Java](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3-6DB33F?logo=springboot&logoColor=white)
+![React](https://img.shields.io/badge/React-Vite-61DAFB?logo=react&logoColor=black)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwindcss&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
 
-<!-- Live demo: Frontend (Vercel) and Backend (Render) links can be added here after deployment. -->
+[Demo video](docs/Demo_video.mp4) · [API reference](docs/API.md) · [Screenshots](#screenshots) · [Getting started](#getting-started)
 
-## Demo
+</div>
 
-Full walkthrough of the running application: [docs/Demo_video.mp4](docs/Demo_video.mp4)
+> **Final Year Project**
+> Author: `<Your Name>` · Programme: `<Degree / Course>` · Institution: `<University>` · Supervisor: `<Supervisor Name>` · Year: `<Year>`
+
+---
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Screenshots](#screenshots)
+3. [Key Features](#key-features)
+4. [Tech Stack](#tech-stack)
+5. [System Architecture](#system-architecture)
+6. [How Matching Works](#how-matching-works)
+7. [Getting Started](#getting-started)
+8. [Demo Accounts](#demo-accounts)
+9. [Testing](#testing)
+10. [API Documentation](#api-documentation)
+11. [Configuration](#configuration)
+12. [Deployment](#deployment)
+13. [Design Decisions](#design-decisions)
+14. [Security Considerations](#security-considerations)
+15. [Limitations and Future Work](#limitations-and-future-work)
+16. [Author and License](#author-and-license)
+
+---
+
+## Overview
+
+Skillora lets members list the skills they can **teach** and the skills they want to **learn**. The platform then
+suggests people whose skills complement theirs, so each side gives and receives knowledge without money changing
+hands. Matched members can message each other, schedule sessions, review one another, and earn XP as they progress.
+
+### Objectives
+
+- Build a complete full-stack application that covers the whole exchange lifecycle, from discovery to review.
+- Design a **transparent, explainable** matching algorithm that does not depend on an external AI service.
+- Apply production-oriented practices: layered architecture, database migrations, stateless authentication,
+  input validation, automated tests, and containerised deployment.
+
+### Example
+
+You teach **SQL** and want to learn **Spring Boot**. Another member teaches **Spring Boot** and wants to learn
+**SQL**. Skillora scores this as a full reciprocal match and explains it in plain English:
+*"You can teach SQL while learning Spring Boot."*
+
+---
 
 ## Screenshots
 
@@ -24,60 +74,75 @@ Full walkthrough of the running application: [docs/Demo_video.mp4](docs/Demo_vid
 | **Notifications**<br>![Notifications](screenshots/Notifications.png) | **Dark mode**<br>![Dark mode](screenshots/Dark_mode.png) |
 | **Admin dashboard**<br>![Admin dashboard](screenshots/Skillora_Admin.png) | |
 
-## Features
+A full walkthrough of the running application is available in [docs/Demo_video.mp4](docs/Demo_video.mp4).
 
-- **Authentication:** registration and login with BCrypt-hashed passwords and JWT; USER and ADMIN roles.
-- **Onboarding:** six skippable steps (profile, skills to teach, skills to learn, experience, availability, goal).
-- **Skills:** 35 seeded skills across 10 categories.
-- **Reciprocal match score:** a transparent score computed in Java, with a breakdown and a plain-English
-  explanation for every match (see [How matching works](#how-matching-works)).
-- **Swap requests:** send, accept, reject and cancel. Accepting a request opens a conversation.
-- **Messaging:** conversations, message history, unread counts and read status (REST polling).
-- **Sessions:** request, confirm, complete or cancel, with status transitions enforced by the backend.
-  The scheduler shows an availability overlap hint.
-- **Reviews:** 1-5 stars after a completed session, one review per person per session, updates reputation.
-- **XP and levels:** +50 XP per completed session (both people), +25 XP for a 5-star review,
-  +20 XP for completing the profile. Levels 1-5 at 0 / 100 / 250 / 500 / 1000 XP.
-- **Notifications:** swap, message, session, review and XP events, with mark-as-read.
-- **Learning goals:** create goals and track progress.
-- **Discover:** search members by name, with pagination.
-- **Admin:** platform statistics, user list, and activate/deactivate with an audit record.
-- **Dark mode** (remembered), responsive layout, and Swagger API documentation.
+---
 
-### Not implemented yet
+## Key Features
 
-- Badges and streak XP
-- Trust score breakdown and a dedicated skill passport page (the public profile at `/profile/{id}` is the
-  closest equivalent)
-- Discover filters beyond name search
-- Admin UI for skill management, reports and announcements (skill create/edit/delete exists as an API)
-- Email notifications, session reminders, WebSockets and frontend tests
+| Area | Description |
+|---|---|
+| **Authentication** | Registration and login with BCrypt-hashed passwords and JWT. `USER` and `ADMIN` roles. |
+| **Onboarding** | Six skippable steps: profile, skills to teach, skills to learn, experience, availability, goal. |
+| **Skills catalogue** | 35 seeded skills across 10 categories. |
+| **Reciprocal matching** | A weighted 100-point score computed in Java, with a per-signal breakdown and a plain-English explanation. |
+| **Swap requests** | Send, accept, reject and cancel. Accepting a request opens a conversation. |
+| **Messaging** | Conversations, message history, unread counts and read status (REST polling). |
+| **Sessions** | Request, confirm, complete or cancel. The backend enforces valid status transitions, and the scheduler shows an availability overlap hint. |
+| **Reviews** | 1-5 stars after a completed session. One review per person per session. Updates reputation. |
+| **XP and levels** | Gamified progression across five levels (see below). |
+| **Notifications** | Swap, message, session, review and XP events, with mark-as-read. |
+| **Learning goals** | Create goals and track progress. |
+| **Discover** | Search members by name, with pagination. |
+| **Admin** | Platform statistics, user list, and activate/deactivate with an audit record. |
+| **UX** | Dark mode (remembered), responsive layout, and Swagger API documentation. |
 
-## How matching works
+### XP and levels
 
-For each candidate, `MatchService` adds up six weighted signals (total 100):
+| Event | XP |
+|---|---|
+| Complete a session (both participants) | +50 |
+| Receive a 5-star review | +25 |
+| Complete your profile | +20 |
 
-| Signal | Weight | Meaning |
-|---|---|---|
-| Skill compatibility | 40 | How much of what each person wants the other can teach |
-| Reciprocal potential | 20 | Full credit if both can teach each other, partial if only one can |
-| Experience fit | 15 | Whether the teacher's level meets the learner's target level |
-| Availability overlap | 10 | Shared words in both free-text availabilities |
-| Reputation | 10 | The candidate's average review rating |
-| Activity | 5 | Accumulated XP |
+| Level | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| **Threshold (XP)** | 0 | 100 | 250 | 500 | 1000 |
 
-Example: you teach SQL and want Spring Boot; they teach Spring Boot and want SQL. That is a full reciprocal
-match, shown as *"You can teach SQL while learning Spring Boot."* No external AI service is used.
+---
 
-## Architecture
+## Tech Stack
 
+| Layer | Technology |
+|---|---|
+| **Frontend** | React, Vite, Tailwind CSS |
+| **Backend** | Java 21, Spring Boot 3, Spring Data JPA |
+| **Security** | Spring Security, JWT, BCrypt |
+| **Database** | PostgreSQL 16, Flyway migrations |
+| **API docs** | OpenAPI / Swagger UI |
+| **Testing** | JUnit and Spring Boot Test with in-memory H2 |
+| **DevOps** | Docker, Docker Compose, nginx, Render, Vercel |
+| **Tooling** | Playwright script for recording screenshots and demo video |
+
+---
+
+## System Architecture
+
+Skillora is a **modular monolith**: a single deployable backend organised in layers, with one relational database.
+
+```mermaid
+flowchart LR
+    A["React SPA<br/>(Vite, Tailwind)"] -- "REST + JWT" --> B["Spring Boot API"]
+    B -- "JPA" --> C[("PostgreSQL<br/>Flyway migrations")]
+    subgraph B["Spring Boot API"]
+        direction TB
+        B1[Controller] --> B2[Service] --> B3[Repository]
+    end
 ```
-React (Vite, Tailwind)  ──REST + JWT──▶  Spring Boot  ──JPA──▶  PostgreSQL (Flyway migrations)
-                                        controller → service → repository
-```
 
-A modular monolith with packages `controller`, `service`, `repository`, `entity`, `dto`, `mapper`,
-`security`, `exception` and `config`.
+**Backend packages:** `controller`, `service`, `repository`, `entity`, `dto`, `mapper`, `security`, `exception`, `config`.
+
+### Repository structure
 
 ```
 skillora/
@@ -90,11 +155,29 @@ skillora/
 └── .env.example
 ```
 
-## Getting started
+---
 
-### Run with Docker (recommended)
+## How Matching Works
 
-Requires Docker Desktop.
+For every candidate, `MatchService` adds up six weighted signals for a total of **100 points**. No external AI
+service is used, so every score can be traced and explained.
+
+| Signal | Weight | Meaning |
+|---|---:|---|
+| Skill compatibility | 40 | How much of what each person wants the other can teach |
+| Reciprocal potential | 20 | Full credit if both can teach each other, partial if only one can |
+| Experience fit | 15 | Whether the teacher's level meets the learner's target level |
+| Availability overlap | 10 | Shared words in both free-text availabilities |
+| Reputation | 10 | The candidate's average review rating |
+| Activity | 5 | Accumulated XP |
+
+---
+
+## Getting Started
+
+### Option 1: Docker (recommended)
+
+**Requirements:** Docker Desktop.
 
 ```bash
 docker compose up --build
@@ -108,15 +191,25 @@ docker compose up --build
 
 Demo data is created automatically on first start.
 
-To stop: `docker compose down`. To also wipe the database: `docker compose down -v`.
+```bash
+docker compose down        # stop
+docker compose down -v     # stop and wipe the database
+```
 
-**Port already in use?** Copy `.env.example` to `.env` and change `BACKEND_PORT` and/or `FRONTEND_PORT`.
-If you change `BACKEND_PORT`, set `VITE_API_BASE_URL` to the same port. If you change `FRONTEND_PORT`, add
-`http://localhost:<port>` to `CORS_ALLOWED_ORIGINS`. Then run `docker compose up --build` again.
+<details>
+<summary><strong>Port already in use?</strong></summary>
 
-### Run without Docker
+Copy `.env.example` to `.env` and change `BACKEND_PORT` and/or `FRONTEND_PORT`.
 
-Requires Java 21, Maven 3.9+, Node 20 and PostgreSQL 16.
+- If you change `BACKEND_PORT`, set `VITE_API_BASE_URL` to the same port.
+- If you change `FRONTEND_PORT`, add `http://localhost:<port>` to `CORS_ALLOWED_ORIGINS`.
+
+Then run `docker compose up --build` again.
+</details>
+
+### Option 2: Run locally without Docker
+
+**Requirements:** Java 21, Maven 3.9+, Node 20, PostgreSQL 16.
 
 ```bash
 # 1. Create a PostgreSQL database and user, both named "skillora" (password "skillora")
@@ -132,21 +225,13 @@ npm install
 npm run dev
 ```
 
-The backend reads `DATABASE_URL`, `DATABASE_USERNAME` and `DATABASE_PASSWORD` if your database differs.
+If your database settings differ, the backend reads `DATABASE_URL`, `DATABASE_USERNAME` and `DATABASE_PASSWORD`.
 
-### Run the tests
+---
 
-```bash
-cd backend
-mvn test
-```
+## Demo Accounts
 
-The tests use an in-memory H2 database and cover registration and login, JWT-protected access, the matching
-algorithm, and the swap → session → review lifecycle.
-
-## Demo accounts
-
-Seeded on first start (21 members with sample swaps, sessions, a review and goals).
+Seeded on first start: 21 members with sample swaps, sessions, a review and goals.
 
 | Role | Email | Password |
 |---|---|---|
@@ -154,19 +239,46 @@ Seeded on first start (21 members with sample swaps, sessions, a review and goal
 | Member | `alex@skillora.demo` | `Demo@1234` |
 | Member | `sarah@skillora.demo` | `Demo@1234` |
 
-The other seeded members use `firstname.lastname@skillora.demo` with the same password.
+Other seeded members use `firstname.lastname@skillora.demo` with the same password.
 Set `SEED_ENABLED=false` to disable demo data.
 
-## API documentation
+---
 
-Interactive docs are at `/swagger-ui/index.html`. Choose **Authorize** and paste the token returned by
-`POST /api/auth/login`. A summary of all endpoints is in [docs/API.md](docs/API.md).
+## Testing
 
-Errors always use one format:
+```bash
+cd backend
+mvn test
+```
+
+Tests run against an in-memory H2 database and cover:
+
+- Registration and login
+- JWT-protected access
+- The matching algorithm
+- The swap → session → review lifecycle
+
+Frontend tests are not yet implemented (see [Limitations and Future Work](#limitations-and-future-work)).
+
+---
+
+## API Documentation
+
+- **Interactive docs:** `/swagger-ui/index.html`. Choose **Authorize** and paste the token returned by `POST /api/auth/login`.
+- **Endpoint summary:** [docs/API.md](docs/API.md)
+
+All errors use a single consistent format:
 
 ```json
-{ "success": false, "message": "Human readable message", "timestamp": "...", "path": "/api/..." }
+{
+  "success": false,
+  "message": "Human readable message",
+  "timestamp": "...",
+  "path": "/api/..."
+}
 ```
+
+---
 
 ## Configuration
 
@@ -182,22 +294,26 @@ Errors always use one format:
 | `DEMO_PASSWORD` | Password for seeded accounts | `Demo@1234` |
 | `VITE_API_BASE_URL` | Backend URL used by the frontend (set at build time) | `http://localhost:8080` |
 
-Always set your own `JWT_SECRET` outside local development. Never commit a real `.env` file.
+> **Important:** always set your own `JWT_SECRET` outside local development, and never commit a real `.env` file.
+
+---
 
 ## Deployment
 
 ### Backend and database on Render
 
 1. Create a **PostgreSQL** database on Render.
-2. Create a **Web Service** from this repository: runtime **Docker**, root directory `backend`,
-   health check path `/actuator/health`.
-3. Add environment variables:
-   - `DATABASE_URL`: `jdbc:postgresql://<host>:5432/<database>` (JDBC format, not `postgres://`)
-   - `DATABASE_USERNAME` and `DATABASE_PASSWORD` from the Render database
-   - `JWT_SECRET`: a long random string
-   - `CORS_ALLOWED_ORIGINS`: your Vercel URL, with no trailing slash
-   - `SPRING_PROFILES_ACTIVE`: `prod`
-   - `SEED_ENABLED`: `true` for a demo, `false` otherwise
+2. Create a **Web Service** from this repository with runtime **Docker**, root directory `backend`, and health check path `/actuator/health`.
+3. Add these environment variables:
+
+   | Variable | Value |
+   |---|---|
+   | `DATABASE_URL` | `jdbc:postgresql://<host>:5432/<database>` (JDBC format, not `postgres://`) |
+   | `DATABASE_USERNAME` / `DATABASE_PASSWORD` | Taken from the Render database |
+   | `JWT_SECRET` | A long random string |
+   | `CORS_ALLOWED_ORIGINS` | Your Vercel URL, with no trailing slash |
+   | `SPRING_PROFILES_ACTIVE` | `prod` |
+   | `SEED_ENABLED` | `true` for a demo, `false` otherwise |
 
 Flyway creates the schema on first start. Demo data loads only when the users table is empty.
 
@@ -208,18 +324,64 @@ Flyway creates the schema on first start. Demo data loads only when the users ta
 3. Deploy. `vercel.json` already sets the build command and single-page-app routing.
 4. Add the final Vercel URL to `CORS_ALLOWED_ORIGINS` on Render and redeploy the backend.
 
-## Design decisions
+---
 
-- **Modular monolith:** one deployable and one database keeps the project simple; microservices would add
-  operational cost with no benefit at this size.
-- **PostgreSQL:** the data is relational (users, skills, swaps, sessions, reviews) and benefits from
-  constraints, indexes and transactions.
-- **Security:** BCrypt password hashing, stateless JWT, role-based access, request validation, and CORS
-  limited to configured origins. The token is stored in `localStorage`, which is simple but exposed to XSS;
-  httpOnly cookies would be stronger. There is no rate limiting yet.
-- **Known limits:** matches are scored in memory per request (fine for a demo, first thing to optimise at
-  scale), and availability overlap is a simple word comparison rather than real calendar logic.
+## Design Decisions
 
-## Future improvements
+| Decision | Rationale |
+|---|---|
+| **Modular monolith** | One deployable and one database keeps the project simple. Microservices would add operational cost with no benefit at this size. |
+| **PostgreSQL** | The data is relational (users, skills, swaps, sessions, reviews) and benefits from constraints, indexes and transactions. |
+| **Flyway migrations** | Versioned, repeatable schema changes across local, test and production environments. |
+| **Rule-based matching** | A weighted score is transparent, testable and explainable to users, with no dependency on an external AI service. |
+| **REST polling for messages** | Simpler to build and deploy than WebSockets, and adequate for a demo-scale workload. |
+| **Server-enforced status transitions** | Sessions and swaps can only move through valid states, so the API stays consistent regardless of the client. |
 
-Video calls, semantic matching, calendar integration, email notifications and a mobile app.
+---
+
+## Security Considerations
+
+**Implemented**
+
+- BCrypt password hashing
+- Stateless JWT authentication with role-based access control (`USER`, `ADMIN`)
+- Request validation and a uniform error format
+- CORS restricted to configured origins
+
+**Known trade-offs**
+
+- The JWT is stored in `localStorage`, which is simple but exposed to XSS. httpOnly cookies would be stronger.
+- There is no rate limiting yet.
+
+---
+
+## Limitations and Future Work
+
+### Not implemented yet
+
+- Badges and streak XP
+- Trust score breakdown and a dedicated skill passport page (the public profile at `/profile/{id}` is the closest equivalent)
+- Discover filters beyond name search
+- Admin UI for skill management, reports and announcements (skill create/edit/delete exists as an API)
+- Email notifications, session reminders, WebSockets and frontend tests
+
+### Known limits
+
+- Matches are scored in memory per request. This is fine for a demo and is the first thing to optimise at scale.
+- Availability overlap is a simple word comparison rather than real calendar logic.
+
+### Roadmap
+
+- [ ] Rate limiting and httpOnly cookie authentication
+- [ ] Structured availability with calendar integration
+- [ ] Semantic skill matching
+- [ ] WebSocket messaging and email notifications
+- [ ] Session reminders and video calls
+- [ ] Frontend unit and end-to-end tests
+
+---
+
+## Author and License
+
+**`<Meghana Bommishetti>`** · [GitHub](https://github.com/meghana5226) · [LinkedIn](https://www.linkedin.com/in/bommishetti-meghana-0a3875289/) · `<bommishettimeghana5226@gmail.com>`
+
